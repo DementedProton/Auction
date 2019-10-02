@@ -1,12 +1,20 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.lang.StringBuilder;;
 
 public class DPASolver {
 
-    public double interval;
-    public double interval_lenght;
+    public double interval; //formulast from the psedocode
+    public double interval_lenght; //formulast from the psedocode
     public int gamma;
     public double epsilon;
+    HashMap<String, ArrayList<Integer>> segments = new HashMap<String, ArrayList<Integer>>();
 
+    /**
+     * 
+     * @param d the budget for all the  bidders
+     * @return the maximum budget
+     */
     public int findMaxBudget(int[] d) {
         int max = 0;
         for(int i = 0; i < d.length; i++) {
@@ -14,10 +22,16 @@ public class DPASolver {
                 max = d[i];
             }
         }
-
         return max;
     }
 
+    /**
+     * 
+     * @param s is S_i used to calculate the new list S_i+1
+     * @param iteration which item we are currently working on
+     * @param a the currenct action instance
+     * @return s_i+1, the new list based on the values and s_i removing the tuples based on the segments
+     */
     public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> s, int iteration, AuctionProblemInstance a) {
         ArrayList<ArrayList<Integer>> returnVal = new ArrayList<ArrayList<Integer>>();
         for (int  k = 0; k < s.size(); k ++) {
@@ -28,26 +42,90 @@ public class DPASolver {
                 for(int j = 0; j < a.n; j++) {
                     if(iterator == j) {
                         Integer newVal =s.get(k).get(j) + a.b[j][iteration];
+                        if(newVal > a.d[j]) {
+                            totalGain += (a.d[j] - s.get(k).get(j));
+                            newVal = a.d[j];
+                        } else {
+                            totalGain += a.b[j][iteration];
+                        }
                         allocation.add(newVal);
-                        totalGain += a.b[j][iteration];
                     } else {
                         allocation.add(s.get(k).get(j));
                     }
                 } 
                 allocation.add(totalGain);
-                returnVal.add(allocation);   
+                updateHashMap(allocation);  
                 iterator++;
             } 
         }
+        returnVal = getListFromHash();
         return returnVal;
     }
 
+    /**
+     * 
+     * @param newVals new tuple to be added to hashmap
+     * Adds new tuple to hashmaps and removes duplicates if they exist
+     */
+    public void updateHashMap(ArrayList<Integer> newVals) {
+        int temp;
+
+        StringBuilder stringBuild = new StringBuilder();
+
+        for (int i = 0; i < newVals.size()-1; i++) {
+            temp = (int)(Math.floor(newVals.get(i)/interval_lenght));
+            stringBuild.append(temp);
+        }
+        String sequence = stringBuild.toString();
+        if(segments.containsKey(sequence)) {
+            ArrayList<Integer> sameSeq = segments.get(sequence);
+            if(newVals.get(newVals.size()-1) > sameSeq.get(sameSeq.size()-1)) {
+                segments.replace(sequence, sameSeq, newVals);
+            }
+        } else {
+            segments.put(sequence, newVals);
+        }
+    }
+
+    /**
+     * 
+     * @return returns and  arraylist based on the hashmap
+     * Clears the hashmap for the next run
+     */
+    public ArrayList<ArrayList<Integer>> getListFromHash() {
+        ArrayList<ArrayList<Integer>> values = new ArrayList<ArrayList<Integer>>(segments.values());
+        segments.clear();
+
+        return values;
+    }
+
+    /**
+     * 
+     * @param instance current arraylist to be printed
+     * Prints out all the tuples in the arraylist
+     */
+    public void debugger(ArrayList<ArrayList<Integer>> instance) {
+        for (ArrayList<Integer> var : instance) {
+            for(int i = 0; i  < var.size(); i++) {
+                System.out.print(var.get(i) + "  ");
+            }
+            System.out.println();
+            System.out.println("=============================");
+        }
+    }
+
+    /**
+     * 
+     * @param a current auction we are considering, command line argument
+     * @param eps current epsilon value, command line argument
+     * @return the solution to the AuctionProblemInstance
+     * Perform the action of getting in an array and calculating the maximum benefit allocated to the auctioneer.
+     */
     public AuctionProblemInstance.Solution solve(AuctionProblemInstance a, String eps) {
         epsilon = Double.valueOf(eps);
-        System.out.println("epsilon: " +  epsilon);
 
-        gamma = findMaxBudget(a.d);
-        interval = a.n*a.k/epsilon;
+        gamma = findMaxBudget(a.d); //max budget of the bidders
+        interval = a.n*a.k/epsilon; 
         interval_lenght = gamma*epsilon/a.k;
 
         ArrayList<Integer> allocation = new ArrayList<Integer>();
@@ -65,14 +143,16 @@ public class DPASolver {
             s_second = performTupleCreation(s_first, j, a);
             s_first = s_second;
         }
-        //Array debugger;
-        for (ArrayList<Integer> var : s_first) {
-            for(int i = 0; i  < var.size(); i++) {
-                System.out.print(var.get(i) + "  ");
+
+        //Should be commented out before turning in, otherwise the algorithm won't return the correct value
+        debugger(s_first);
+        
+        int max = 0;
+        for (ArrayList<Integer> val: s_first) {
+            if(val.get(val.size()-1) > max) {
+                max = val.get(val.size()-1);
             }
-            System.out.println();
-            System.out.println("=============================");
         }
-        return new AuctionProblemInstance.Solution(0,0);
+        return new AuctionProblemInstance.Solution(max,epsilon);
     }
 }
