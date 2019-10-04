@@ -9,6 +9,7 @@ public class DPASolver {
     public int gamma;
     public double epsilon;
     HashMap<String, ArrayList<Integer>> segments = new HashMap<String, ArrayList<Integer>>();
+    public long timeElapsed[] = new long[3];
 
     /**
      * 
@@ -33,6 +34,8 @@ public class DPASolver {
      * @return s_i+1, the new list based on the values and s_i removing the tuples based on the segments
      */
     public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> s, int iteration, AuctionProblemInstance a) {
+        long startTime = System.nanoTime();
+
         ArrayList<ArrayList<Integer>> returnVal = new ArrayList<ArrayList<Integer>>();
         for (int  k = 0; k < s.size(); k ++) {
             int iterator = 0;
@@ -59,6 +62,11 @@ public class DPASolver {
             } 
         }
         returnVal = getListFromHash();
+
+        long endTime = System.nanoTime();
+        long totalTime = endTime - startTime;
+        timeElapsed[2] = totalTime + timeElapsed[2];
+
         return returnVal;
     }
 
@@ -68,6 +76,7 @@ public class DPASolver {
      * Adds new tuple to hashmaps and removes duplicates if they exist
      */
     public void updateHashMap(ArrayList<Integer> newVals) {
+        long startTime = System.nanoTime();
         int temp;
 
         StringBuilder stringBuild = new StringBuilder();
@@ -85,6 +94,10 @@ public class DPASolver {
         } else {
             segments.put(sequence, newVals);
         }
+
+        long endTime = System.nanoTime();
+        timeElapsed[0] = timeElapsed[0] + (endTime - startTime);
+         
     }
 
     /**
@@ -93,8 +106,12 @@ public class DPASolver {
      * Clears the hashmap for the next run
      */
     public ArrayList<ArrayList<Integer>> getListFromHash() {
+        long startTime = System.nanoTime();
         ArrayList<ArrayList<Integer>> values = new ArrayList<ArrayList<Integer>>(segments.values());
         segments.clear();
+
+        long endTime = System.nanoTime();
+        timeElapsed[1] = timeElapsed[1] + (endTime - startTime);
 
         return values;
     }
@@ -110,7 +127,7 @@ public class DPASolver {
                 System.out.print(var.get(i) + "  ");
             }
             System.out.println();
-            System.out.println("=============================");
+            System.out.println("=========================================================");
         }
     }
 
@@ -122,6 +139,9 @@ public class DPASolver {
      * Perform the action of getting in an array and calculating the maximum benefit allocated to the auctioneer.
      */
     public AuctionProblemInstance.Solution solve(AuctionProblemInstance a, String eps) {
+
+        long startTime = System.nanoTime();
+
         epsilon = Double.valueOf(eps);
 
         gamma = findMaxBudget(a.d); //max budget of the bidders
@@ -145,7 +165,7 @@ public class DPASolver {
         }
 
         //Should be commented out before turning in, otherwise the algorithm won't return the correct value
-        debugger(s_first);
+        //debugger(s_first);
         
         int max = 0;
         for (ArrayList<Integer> val: s_first) {
@@ -153,6 +173,13 @@ public class DPASolver {
                 max = val.get(val.size()-1);
             }
         }
+
+        long endTime = System.nanoTime();
+        System.out.println("Total running time " + String.valueOf((endTime - startTime)));
+
+        System.out.println("Time of performTupleCreation in nanosecond: " +  (timeElapsed[2] - timeElapsed[1] -  timeElapsed[0]));
+        System.out.println("Time of hashCreation in nanosecond: " +  timeElapsed[0]);
+        System.out.println("Time of hash to list conversion in nanosecond " + timeElapsed[1]);
         return new AuctionProblemInstance.Solution(max,epsilon);
     }
 }
