@@ -38,12 +38,12 @@ public class DPASolver {
 //        long startTime = System.nanoTime();
 
         ArrayList<ArrayList<Integer>> returnVal = new ArrayList<ArrayList<Integer>>();
-        for (int  k = 0; k < segment.size(); k ++) {
-            int iterator = 0;
+        for (int  k = 0; k < segment.size(); k ++) {  // post increment to pre increment 
+            int iterator = 0;  // maybe don't need this? remove iterator and use i ?
             for(int i = 0; i < a.n; i++) {  // number of bidders - for each bidder
                 ArrayList<Integer> allocation = new ArrayList<Integer>(); // create a new tuple
-                int totalGain = segment.get(k).get(segment.get(k).size() - 1);
-                for(int j = 0; j < a.n; j++) {
+                int totalGain = segment.get(k).get(segment.get(k).size() - 1); // total gain can be moved to above i loop -> don't access the segment again and again, get a reference pointer
+                for(int j = 0; j < a.n; j++) {   // store the reference of the array list 
                     if(iterator == j && segment.get(k).get(j) < a.d[j]) {
                         Integer newVal =segment.get(k).get(j) + a.b[j][iteration];
                         if(newVal > a.d[j]) {
@@ -83,7 +83,7 @@ public class DPASolver {
         StringBuilder stringBuild = new StringBuilder();
 
         for (int i = 0; i < newVals.size()-1; i++) {
-            temp = (int)(Math.floor(newVals.get(i)/interval_length));
+            temp = (int)(Math.floor(newVals.get(i)/interval_length));    // maybe change single digit to double digit chars 
             stringBuild.append(temp);
         }
         String sequence = stringBuild.toString();
@@ -149,8 +149,8 @@ public class DPASolver {
         interval = a.n*a.k/epsilon;
         interval_length = gamma*epsilon/a.k;
 
-        ArrayList<Integer> allocation = new ArrayList<Integer>();
-        ArrayList<ArrayList<Integer>> s_first = new ArrayList<ArrayList<Integer>>();
+        ArrayList<Integer> allocation = new ArrayList<Integer>();   // Initialize with size when you know size 
+        ArrayList<ArrayList<Integer>> s_first = new ArrayList<ArrayList<Integer>>(); // Directly assign S_first from the hashmap
         ArrayList<ArrayList<Integer>> s_second = new ArrayList<ArrayList<Integer>>();
 
         for(int i = 0; i < a.n; i++) {
@@ -158,7 +158,7 @@ public class DPASolver {
             //allocation.add(0);
         }
         allocation.add(0);
-        s_first.add(allocation);
+        s_first.add(allocation); // How is it passed, by value or by reference - it is going to take time to copy 
 
         for(int j = 0; j < a.k; j++) {
             s_second = performTupleCreation(s_first, j, a);
@@ -168,7 +168,7 @@ public class DPASolver {
         //Should be commented out before turning in, otherwise the algorithm won't return the correct value
         //debugger(s_first);
         
-        int max = 0;
+        int max = 0;  // assign max to first element's size() -1 
         for (ArrayList<Integer> val: s_first) {
             if(val.get(val.size()-1) > max) {
                 max = val.get(val.size()-1);
