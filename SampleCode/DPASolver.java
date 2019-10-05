@@ -40,8 +40,8 @@ public class DPASolver {
         ArrayList<ArrayList<Integer>> returnVal = new ArrayList<ArrayList<Integer>>();
         for (int  k = 0; k < segment.size(); k ++) {
             int iterator = 0;
-            for(int i = 0; i < a.n; i++) {
-                ArrayList<Integer> allocation = new ArrayList<Integer>();
+            for(int i = 0; i < a.n; i++) {  // number of bidders - for each bidder
+                ArrayList<Integer> allocation = new ArrayList<Integer>(); // create a new tuple
                 int totalGain = segment.get(k).get(segment.get(k).size() - 1);
                 for(int j = 0; j < a.n; j++) {
                     if(iterator == j) {
@@ -155,7 +155,7 @@ public class DPASolver {
 
         for(int i = 0; i < a.n; i++) {
             allocation.add(0);
-            allocation.add(0);
+            //allocation.add(0);
         }
         allocation.add(0);
         s_first.add(allocation);
