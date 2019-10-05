@@ -1,11 +1,12 @@
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.lang.StringBuilder;;
+import java.lang.StringBuilder;
+import java.util.concurrent.TimeUnit;
 
 public class DPASolver {
 
     public double interval; //formulast from the psedocode
-    public double interval_lenght; //formulast from the psedocode
+    public double interval_length; //formulast from the psedocode
     public int gamma;
     public double epsilon;
     HashMap<String, ArrayList<Integer>> segments = new HashMap<String, ArrayList<Integer>>();
@@ -33,27 +34,27 @@ public class DPASolver {
      * @param a the currenct action instance
      * @return s_i+1, the new list based on the values and s_i removing the tuples based on the segments
      */
-    public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> s, int iteration, AuctionProblemInstance a) {
+    public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> segment, int iteration, AuctionProblemInstance a) {
 //        long startTime = System.nanoTime();
 
         ArrayList<ArrayList<Integer>> returnVal = new ArrayList<ArrayList<Integer>>();
-        for (int  k = 0; k < s.size(); k ++) {
+        for (int  k = 0; k < segment.size(); k ++) {
             int iterator = 0;
             for(int i = 0; i < a.n; i++) {
                 ArrayList<Integer> allocation = new ArrayList<Integer>();
-                int totalGain = s.get(k).get(s.get(k).size() - 1);
+                int totalGain = segment.get(k).get(segment.get(k).size() - 1);
                 for(int j = 0; j < a.n; j++) {
                     if(iterator == j) {
-                        Integer newVal =s.get(k).get(j) + a.b[j][iteration];
+                        Integer newVal =segment.get(k).get(j) + a.b[j][iteration];
                         if(newVal > a.d[j]) {
-                            totalGain += (a.d[j] - s.get(k).get(j));
+                            totalGain += (a.d[j] - segment.get(k).get(j));
                             newVal = a.d[j];
                         } else {
                             totalGain += a.b[j][iteration];
                         }
                         allocation.add(newVal);
                     } else {
-                        allocation.add(s.get(k).get(j));
+                        allocation.add(segment.get(k).get(j));
                     }
                 } 
                 allocation.add(totalGain);
@@ -82,7 +83,7 @@ public class DPASolver {
         StringBuilder stringBuild = new StringBuilder();
 
         for (int i = 0; i < newVals.size()-1; i++) {
-            temp = (int)(Math.floor(newVals.get(i)/interval_lenght));
+            temp = (int)(Math.floor(newVals.get(i)/interval_length));
             stringBuild.append(temp);
         }
         String sequence = stringBuild.toString();
@@ -140,13 +141,13 @@ public class DPASolver {
      */
     public AuctionProblemInstance.Solution solve(AuctionProblemInstance a, String eps) {
 
-//        long startTime = System.nanoTime();
+        long startTime = System.nanoTime();
 
         epsilon = Double.valueOf(eps);
 
         gamma = findMaxBudget(a.d); //max budget of the bidders
         interval = a.n*a.k/epsilon; 
-        interval_lenght = gamma*epsilon/a.k;
+        interval_length = gamma*epsilon/a.k;
 
         ArrayList<Integer> allocation = new ArrayList<Integer>();
         ArrayList<ArrayList<Integer>> s_first = new ArrayList<ArrayList<Integer>>();
@@ -174,8 +175,9 @@ public class DPASolver {
             }
         }
 
-//        long endTime = System.nanoTime();
-//        System.out.println("Total running time " + String.valueOf((endTime - startTime)));
+        long endTime = System.nanoTime();
+        double endTime_ms = (endTime - startTime)/1000000.0;
+        System.out.println("Total running time " + endTime_ms);
 //
 //        System.out.println("Time of performTupleCreation in nanosecond: " +  (timeElapsed[2] - timeElapsed[1] -  timeElapsed[0]));
 //        System.out.println("Time of hashCreation in nanosecond: " +  timeElapsed[0]);
