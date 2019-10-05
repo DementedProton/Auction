@@ -34,7 +34,7 @@ public class DPASolver {
      * @param a the currenct action instance
      * @return s_i+1, the new list based on the values and s_i removing the tuples based on the segments
      */
-    public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> segment, int current_item_number,
+     public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> segment, int current_item_number,
                                                               AuctionProblemInstance auction_instance) {
         for(int tuple_i = 0; tuple_i < segment.size(); tuple_i++) {
             ArrayList<Integer> current_tuple = segment.get(tuple_i);
@@ -43,17 +43,16 @@ public class DPASolver {
                 ArrayList<Integer> new_tuple = new ArrayList<Integer>(current_tuple);
                 int total_gain_of_new_tuple = total_gain_of_current_tuple;
                 if( new_tuple.get(bidder_j) < auction_instance.d[bidder_j]) { // if current bidder benefit less than budget limit
-                    // new_tuple.get(bidder_j) += auction_instance.b[current_item_number][bidder_j];
-                    //new_tuple.set(bidder_j, new_tuple.get(bidder_j) + auction_instance.b[bidder_j][current_item_number]);
                     int new_benefit = new_tuple.get(bidder_j) + auction_instance.b[bidder_j][current_item_number];
                     if(new_benefit > auction_instance.d[bidder_j]) { // if current bidder benefit exceeds budget
-                        //new_tuple.get(bidder_j) = auction_instance.d[bidder_j]); // set to his budget limit
                         total_gain_of_new_tuple += ( auction_instance.d[bidder_j] - new_tuple.get(bidder_j));
                         new_tuple.set(bidder_j, auction_instance.d[bidder_j]);
                     }
                     else { // current bidder benefit under budget limit
                         total_gain_of_new_tuple += auction_instance.b[bidder_j][current_item_number]; // increase total gain by that bidder's bid
+                        new_tuple.set(bidder_j, new_benefit);
                     }
+
                     new_tuple.set(new_tuple.size() - 1, total_gain_of_new_tuple); // overwrite total gain of tuple
                 }
                 updateHashMap(new_tuple);
@@ -61,6 +60,8 @@ public class DPASolver {
         }
         return getListFromHash();
     }
+
+
 
 
 
