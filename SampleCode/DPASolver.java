@@ -34,42 +34,35 @@ public class DPASolver {
      * @param a the currenct action instance
      * @return s_i+1, the new list based on the values and s_i removing the tuples based on the segments
      */
-    public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> segment, int iteration, AuctionProblemInstance a) {
-//        long startTime = System.nanoTime();
-
-        ArrayList<ArrayList<Integer>> returnVal = new ArrayList<ArrayList<Integer>>();
-        for (int  k = 0; k < segment.size(); k ++) {  // post increment to pre increment 
-            int iterator = 0;  // maybe don't need this? remove iterator and use i ?
-            for(int i = 0; i < a.n; i++) {  // number of bidders - for each bidder
-                ArrayList<Integer> allocation = new ArrayList<Integer>(); // create a new tuple
-                int totalGain = segment.get(k).get(segment.get(k).size() - 1); // total gain can be moved to above i loop -> don't access the segment again and again, get a reference pointer
-                for(int j = 0; j < a.n; j++) {   // store the reference of the array list 
-                    if(iterator == j && segment.get(k).get(j) < a.d[j]) {
-                        Integer newVal =segment.get(k).get(j) + a.b[j][iteration];
-                        if(newVal > a.d[j]) {
-                            totalGain += (a.d[j] - segment.get(k).get(j));
-                            newVal = a.d[j];
-                        } else {
-                            totalGain += a.b[j][iteration];
-                        }
-                        allocation.add(newVal);
-                    } else {
-                        allocation.add(segment.get(k).get(j));
+ 
+    public ArrayList<ArrayList<Integer>> performTupleCreation(ArrayList<ArrayList<Integer>> segment, int current_item_number,
+                                                              AuctionProblemInstance auction_instance) {
+        for(int tuple_i = 0; tuple_i < segment.size(); tuple_i++) {
+            ArrayList<Integer> current_tuple = new ArrayList<Integer>(segment.get(tuple_i));
+            int total_gain_of_current_tuple = current_tuple.get(current_tuple.size() - 1);
+            for(int bidder_j = 0; bidder_j < auction_instance.n; bidder_j++) { // n - number of bidders ; create n tuples for each old tuple
+                ArrayList<Integer> new_tuple = new ArrayList<Integer>(current_tuple);
+                int total_gain_of_new_tuple = new_tuple.get(new_tuple.size() - 1);
+                if( new_tuple.get(bidder_j) < auction_instance.d[bidder_j]) { // if current bidder benefit less than budget limit
+                    // new_tuple.get(bidder_j) += auction_instance.b[current_item_number][bidder_j];
+                    new_tuple.set(bidder_j, new_tuple.get(bidder_j) + auction_instance.b[bidder_j][current_item_number]);
+                    if(new_tuple.get(bidder_j) > auction_instance.d[bidder_j]) { // if current bidder benefit exceeds budget
+                        //new_tuple.get(bidder_j) = auction_instance.d[bidder_j]); // set to his budget limit
+                        new_tuple.set(bidder_j, auction_instance.d[bidder_j] );
+                        total_gain_of_new_tuple += (auction_instance.d[bidder_j] - new_tuple.get(bidder_j));
                     }
-                } 
-                allocation.add(totalGain);
-                updateHashMap(allocation);  
-                iterator++;
-            } 
+                    else { // current bidder benefit under budget limit
+                        total_gain_of_new_tuple += auction_instance.b[bidder_j][current_item_number]; // increase total gain by that bidder's bid
+                    }
+                    new_tuple.set(new_tuple.size() - 1, total_gain_of_new_tuple); // overwrite total gain of tuple
+                }
+                updateHashMap(new_tuple);
+            }
         }
-        returnVal = getListFromHash();
-
-//        long endTime = System.nanoTime();
-//        long totalTime = endTime - startTime;
-//        timeElapsed[2] = totalTime + timeElapsed[2];
-
-        return returnVal;
+        return (new ArrayList<ArrayList<Integer>>(getListFromHash()));
     }
+
+
 
     /**
      * 
