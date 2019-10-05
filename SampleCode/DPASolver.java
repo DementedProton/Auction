@@ -44,7 +44,7 @@ public class DPASolver {
                 ArrayList<Integer> allocation = new ArrayList<Integer>(); // create a new tuple
                 int totalGain = segment.get(k).get(segment.get(k).size() - 1);
                 for(int j = 0; j < a.n; j++) {
-                    if(iterator == j) {
+                    if(iterator == j && segment.get(k).get(j) < a.d[j]) {
                         Integer newVal =segment.get(k).get(j) + a.b[j][iteration];
                         if(newVal > a.d[j]) {
                             totalGain += (a.d[j] - segment.get(k).get(j));
@@ -183,6 +183,7 @@ public class DPASolver {
 //        System.out.println("Time of performTupleCreation in nanosecond: " +  (timeElapsed[2] - timeElapsed[1] -  timeElapsed[0]));
 //        System.out.println("Time of hashCreation in nanosecond: " +  timeElapsed[0]);
 //        System.out.println("Time of hash to list conversion in nanosecond " + timeElapsed[1]);
+        //System.out.println(max);
         return new AuctionProblemInstance.Solution(max,epsilon);
     }
 }
