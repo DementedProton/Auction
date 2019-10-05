@@ -44,12 +44,12 @@ public class DPASolver {
                 int total_gain_of_new_tuple = total_gain_of_current_tuple;
                 if( new_tuple.get(bidder_j) < auction_instance.d[bidder_j]) { // if current bidder benefit less than budget limit
                     // new_tuple.get(bidder_j) += auction_instance.b[current_item_number][bidder_j];
-                    new_tuple.set(bidder_j, new_tuple.get(bidder_j) + auction_instance.b[bidder_j][current_item_number]);
-                    if(new_tuple.get(bidder_j) > auction_instance.d[bidder_j]) { // if current bidder benefit exceeds budget
+                    //new_tuple.set(bidder_j, new_tuple.get(bidder_j) + auction_instance.b[bidder_j][current_item_number]);
+                    int new_benefit = new_tuple.get(bidder_j) + auction_instance.b[bidder_j][current_item_number];
+                    if(new_benefit > auction_instance.d[bidder_j]) { // if current bidder benefit exceeds budget
                         //new_tuple.get(bidder_j) = auction_instance.d[bidder_j]); // set to his budget limit
-                        total_gain_of_new_tuple += (new_tuple.get(bidder_j) - auction_instance.d[bidder_j]);
-                        new_tuple.set(bidder_j, auction_instance.d[bidder_j] );
-
+                        total_gain_of_new_tuple += ( auction_instance.d[bidder_j] - new_tuple.get(bidder_j));
+                        new_tuple.set(bidder_j, auction_instance.d[bidder_j]);
                     }
                     else { // current bidder benefit under budget limit
                         total_gain_of_new_tuple += auction_instance.b[bidder_j][current_item_number]; // increase total gain by that bidder's bid
@@ -61,6 +61,7 @@ public class DPASolver {
         }
         return getListFromHash();
     }
+
 
 
 
