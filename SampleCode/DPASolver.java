@@ -146,7 +146,7 @@ public class DPASolver {
         epsilon = Double.valueOf(eps);
 
         gamma = findMaxBudget(a.d); //max budget of the bidders
-        interval = a.n*a.k/epsilon; 
+        interval = a.n*a.k/epsilon;
         interval_length = gamma*epsilon/a.k;
 
         ArrayList<Integer> allocation = new ArrayList<Integer>();
@@ -177,7 +177,8 @@ public class DPASolver {
 
         long endTime = System.nanoTime();
         double endTime_ms = (endTime - startTime)/1000000.0;
-        System.out.println("Total running time " + endTime_ms);
+        System.out.println("Total running time " + endTime_ms + ", Gamma " + gamma + ", Number of Bidders "
+                            + a.n + ", Number of Items " + a.k + ", Epsilon " + epsilon);
 //
 //        System.out.println("Time of performTupleCreation in nanosecond: " +  (timeElapsed[2] - timeElapsed[1] -  timeElapsed[0]));
 //        System.out.println("Time of hashCreation in nanosecond: " +  timeElapsed[0]);
